@@ -1,0 +1,132 @@
+:root {
+  --bg: #f3f6ff;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #4b5563;
+  --accent: #3b82f6;
+  --danger: #ef4444;
+  --border: #d1d5db;
+}
+* {
+  box-sizing: border-box;
+}
+html, body {
+  margin: 0;
+  min-height: 100%;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+  color: var(--text);
+}
+body {
+  padding: 24px;
+}
+.app-shell {
+  max-width: 1040px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+header h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 2.8vw, 2.6rem);
+}
+header p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.form-card,
+.summary-card,
+.table-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+.form-card {
+  display: grid;
+  gap: 16px;
+}
+.field-row {
+  display: grid;
+  gap: 8px;
+}
+.field-row label {
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.field-row input,
+.field-row select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-size: 1rem;
+  color: var(--text);
+}
+.field-row input[readonly] {
+  background: #f8fafc;
+}
+.button-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+button {
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  color: #fff;
+  padding: 14px 20px;
+  font-size: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+button:hover {
+  transform: translateY(-1px);
+}
+#saveButton {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  box-shadow: 0 12px 25px rgba(59, 130, 246, 0.18);
+}
+#clearButton {
+  background: #64748b;
+  box-shadow: 0 12px 25px rgba(100, 116, 139, 0.18);
+}
+.message {
+  min-height: 24px;
+  color: var(--danger);
+  font-size: 0.95rem;
+}
+.chart-panel {
+  display: grid;
+  gap: 24px;
+}
+.summary-card h2,
+.table-card h3 {
+  margin-top: 0;
+}
+.record-list {
+  max-height: 320px;
+  overflow-y: auto;
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.record-item {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+.record-item small {
+  display: block;
+  color: var(--muted);
+  margin-top: 8px;
+}
+@media (min-width: 900px) {
+  .chart-panel {
+    grid-template-columns: 1fr 360px;
+    align-items: start;
+  }
+}
