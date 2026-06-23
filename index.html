@@ -1,80 +1,50 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>記帳 + 匯率換算</title>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js" integrity="sha512-R4pZ7+UG89GaYtZ/4dzT9/UR6TfV0ygYrzYZv8xb5KJq6xqV5Ee6XgJJY1Jh6oYjiWXkDxQWqzE3meoQXzM6jw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <style><?!= include('style') ?></style>
-</head>
-<body>
-  <div class="app-shell">
-    <header>
-      <h1>每日記帳 + 外幣匯率換算</h1>
-      <p>輸入金額、分類後，按下儲存即可寫入 Google 試算表，並更新當月消費分析圖。</p>
-    </header>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>旅行打包計畫</title>
+    <?!= include('style'); ?>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header>
+        <h1>旅行打包計畫</h1>
+        <p>輸入目的地城市與預計出發日期，系統會自動抓取當季平均氣溫與建議天氣，並生成打包清單。</p>
+      </header>
 
-    <section class="form-card">
-      <div class="field-row">
-        <label for="date">日期</label>
-        <input type="date" id="date" />
-      </div>
-      <div class="field-row">
-        <label for="item">品項</label>
-        <input type="text" id="item" placeholder="例如：早餐、交通、外出購物" />
-      </div>
-      <div class="field-row">
-        <label for="category">消費分類</label>
-        <select id="category">
-          <option value="飲食">飲食</option>
-          <option value="交通">交通</option>
-          <option value="娛樂">娛樂</option>
-          <option value="購物">購物</option>
-          <option value="生活日常">生活日常</option>
-          <option value="其他">其他</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <label for="currency">外幣種類</label>
-        <select id="currency">
-          <option value="TWD">TWD</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="JPY">JPY</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <label for="amount">金額</label>
-        <input type="number" id="amount" placeholder="輸入消費金額" min="0" step="0.01" />
-      </div>
-      <div class="field-row">
-        <label for="rate">最新匯率 (對 TWD)</label>
-        <input type="text" id="rate" readonly />
-      </div>
-      <div class="field-row">
-        <label for="converted">換算後台幣</label>
-        <input type="text" id="converted" readonly />
-      </div>
-      <div class="button-row">
-        <button id="saveButton" type="button">儲存記帳</button>
-        <button id="clearButton" type="button">清除欄位</button>
-      </div>
-      <div id="message" class="message"></div>
-    </section>
+      <main>
+        <form id="travelForm" onsubmit="return handleSubmit(event)">
+          <label for="destination">目的地城市</label>
+          <input id="destination" name="destination" type="text" placeholder="例如：Tokyo" required />
 
-    <section class="chart-panel">
-      <div class="summary-card">
-        <h2>本月消費分析</h2>
-        <canvas id="categoryChart" aria-label="當月消費比例圖" role="img"></canvas>
-      </div>
-      <div class="table-card">
-        <h3>近期記帳紀錄</h3>
-        <div class="record-list" id="recordList"></div>
-      </div>
-    </section>
-  </div>
+          <label for="departureDate">預計出發日期</label>
+          <input id="departureDate" name="departureDate" type="date" required />
 
-  <script><?!= include('script') ?></script>
-</body>
+          <button type="submit">查詢天氣與打包建議</button>
+        </form>
+
+        <section id="resultPanel" class="hidden">
+          <h2>旅行建議</h2>
+          <div class="result-grid">
+            <div><strong>目的地</strong><span id="resultDestination"></span></div>
+            <div><strong>出發日期</strong><span id="resultDate"></span></div>
+            <div><strong>季節</strong><span id="resultSeason"></span></div>
+            <div><strong>平均氣溫</strong><span id="resultTemperature"></span></div>
+            <div><strong>天氣型態</strong><span id="resultWeather"></span></div>
+            <div class="packing-block"><strong>建議打包清單</strong><ul id="resultPacking"></ul></div>
+          </div>
+
+          <div class="actions">
+            <button id="saveButton" onclick="savePlan()" type="button">存入 Google Sheets</button>
+            <a id="sheetLink" class="hidden" target="_blank" rel="noopener">前往已儲存的 Google Sheets</a>
+          </div>
+        </section>
+
+        <div id="message" class="message"></div>
+      </main>
+    </div>
+
+    <?!= include('script'); ?>
+  </body>
 </html>

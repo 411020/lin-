@@ -1,216 +1,75 @@
-const state = {
-  records: [],
-  chart: null,
-};
+<script>
+  function handleSubmit(event) {
+    event.preventDefault();
+    showMessage('正在查詢城市氣候資料，請稍後...', 'info');
+    document.getElementById('resultPanel').classList.add('hidden');
+    document.getElementById('sheetLink').classList.add('hidden');
 
-const elements = {
-  date: document.getElementById('date'),
-  item: document.getElementById('item'),
-  category: document.getElementById('category'),
-  currency: document.getElementById('currency'),
-  amount: document.getElementById('amount'),
-  rate: document.getElementById('rate'),
-  converted: document.getElementById('converted'),
-  saveButton: document.getElementById('saveButton'),
-  clearButton: document.getElementById('clearButton'),
-  message: document.getElementById('message'),
-  recordList: document.getElementById('recordList'),
-};
+    const destination = document.getElementById('destination').value.trim();
+    const departureDate = document.getElementById('departureDate').value;
 
-const currencyLabels = {
-  TWD: '台幣',
-  USD: '美元',
-  EUR: '歐元',
-  JPY: '日圓',
-};
-
-const init = () => {
-  const today = new Date().toISOString().slice(0, 10);
-  elements.date.value = today;
-  elements.currency.addEventListener('change', updateExchange);
-  elements.amount.addEventListener('input', updateExchange);
-  elements.saveButton.addEventListener('click', saveRecord);
-  elements.clearButton.addEventListener('click', clearForm);
-  initChart();
-  loadRecords();
-};
-
-const updateExchange = () => {
-  const currency = elements.currency.value;
-  const amount = Number(elements.amount.value);
-  if (!amount || amount <= 0) {
-    elements.rate.value = '';
-    elements.converted.value = '';
-    return;
+    google.script.run
+      .withSuccessHandler(renderResult)
+      .withFailureHandler(function (error) {
+        showMessage(error.message || '查詢失敗，請檢查城市名稱或稍後再試。', 'error');
+      })
+      .getDestinationWeather(destination, departureDate);
   }
 
-  if (currency === 'TWD') {
-    elements.rate.value = '1';
-    elements.converted.value = amount.toFixed(2);
-    return;
-  }
-
-  elements.rate.value = '查詢中...';
-  elements.converted.value = '';
-  fetch(`https://api.exchangerate.host/latest?base=${currency}&symbols=TWD`)
-    .then((res) => res.json())
-    .then((data) => {
-      if (!data || !data.rates || typeof data.rates.TWD !== 'number') {
-        throw new Error('匯率讀取失敗');
-      }
-      const rate = Number(data.rates.TWD.toFixed(4));
-      const twd = amount * rate;
-      elements.rate.value = rate.toFixed(4);
-      elements.converted.value = twd.toFixed(2);
-    })
-    .catch(() => {
-      elements.rate.value = '';
-      elements.converted.value = '';
-      showMessage('無法取得最新匯率，請稍後再試。');
-    });
-};
-
-const showMessage = (text, isError = true) => {
-  elements.message.textContent = text;
-  elements.message.style.color = isError ? '#ef4444' : '#16a34a';
-};
-
-const clearMessage = () => {
-  elements.message.textContent = '';
-};
-
-const clearForm = () => {
-  elements.item.value = '';
-  elements.category.value = '飲食';
-  elements.currency.value = 'TWD';
-  elements.amount.value = '';
-  elements.rate.value = '';
-  elements.converted.value = '';
-  clearMessage();
-};
-
-const saveRecord = () => {
-  clearMessage();
-  const record = {
-    date: elements.date.value,
-    item: elements.item.value.trim(),
-    category: elements.category.value,
-    currency: elements.currency.value,
-    amount: Number(elements.amount.value),
-    rate: Number(elements.rate.value),
-    converted: Number(elements.converted.value),
-  };
-
-  if (!record.date || !record.item || !record.amount || !record.converted) {
-    showMessage('請完整填寫日期、品項與金額，並確認匯率已正常取得。');
-    return;
-  }
-
-  elements.saveButton.disabled = true;
-  google.script.run
-    .withSuccessHandler((response) => {
-      elements.saveButton.disabled = false;
-      if (response && response.success) {
-        showMessage('已成功儲存記帳資料。', false);
-        addRecord(record);
-        clearForm();
-      } else {
-        showMessage(response?.message || '儲存失敗，請稍後重試。');
-      }
-    })
-    .withFailureHandler(() => {
-      elements.saveButton.disabled = false;
-      showMessage('儲存失敗，請確認 GAS 已部署且試算表權限正常。');
-    })
-    .saveRecord(record);
-};
-
-const addRecord = (record) => {
-  state.records.unshift(record);
-  renderRecords();
-  redrawChart();
-};
-
-const loadRecords = () => {
-  google.script.run
-    .withSuccessHandler((records) => {
-      state.records = records || [];
-      renderRecords();
-      redrawChart();
-    })
-    .withFailureHandler(() => {
-      showMessage('無法讀取試算表資料，請檢查 GAS 權限。');
-    })
-    .loadRecords();
-};
-
-const initChart = () => {
-  const ctx = document.getElementById('categoryChart').getContext('2d');
-  state.chart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [],
-        backgroundColor: ['#3b82f6', '#f97316', '#14b8a6', '#a855f7', '#ec4899', '#facc15'],
-        borderColor: '#ffffff',
-        borderWidth: 2,
-      }],
-    },
-    options: {
-      plugins: {
-        legend: {
-          position: 'bottom',
-        },
-      },
-    },
-  });
-};
-
-const buildCategoryTotals = () => {
-  const totals = {};
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
-  state.records.forEach((record) => {
-    const date = new Date(record.date);
-    if (date.getFullYear() !== currentYear || date.getMonth() !== currentMonth) {
+  function renderResult(data) {
+    if (!data) {
+      showMessage('沒有取得任何資料。', 'error');
       return;
     }
-    totals[record.category] = (totals[record.category] || 0) + Number(record.converted || 0);
-  });
-  return totals;
-};
 
-const redrawChart = () => {
-  const totals = buildCategoryTotals();
-  const labels = Object.keys(totals);
-  const values = Object.values(totals).map((value) => Number(value.toFixed(2)));
-  if (!labels.length) {
-    state.chart.data.labels = ['尚無本月消費'];
-    state.chart.data.datasets[0].data = [1];
-  } else {
-    state.chart.data.labels = labels;
-    state.chart.data.datasets[0].data = values;
-  }
-  state.chart.update();
-};
+    document.getElementById('resultDestination').textContent = `${data.destination}${data.country ? '，' + data.country : ''}`;
+    document.getElementById('resultDate').textContent = data.departureDate;
+    document.getElementById('resultSeason').textContent = data.season;
+    document.getElementById('resultTemperature').textContent = `${data.averageTemperatureC} °C`;
+    document.getElementById('resultWeather').textContent = data.weatherType;
 
-const renderRecords = () => {
-  elements.recordList.innerHTML = '';
-  if (!state.records.length) {
-    elements.recordList.innerHTML = '<p>尚未有儲存記帳資料。</p>';
-    return;
+    const packingList = document.getElementById('resultPacking');
+    packingList.innerHTML = '';
+    data.packingList.forEach(function (item) {
+      const li = document.createElement('li');
+      li.textContent = item;
+      packingList.appendChild(li);
+    });
+
+    document.getElementById('resultPanel').classList.remove('hidden');
+    showMessage('已為您生成旅遊打包建議，您可以儲存至 Google Sheets。', 'success');
+    window.currentTrip = data;
   }
 
-  state.records.slice(0, 10).forEach((record) => {
-    const item = document.createElement('div');
-    item.className = 'record-item';
-    item.innerHTML = `
-      <strong>${record.date} · ${record.item}</strong>
-      <small>${record.category} / ${currencyLabels[record.currency] || record.currency} ${record.amount.toLocaleString()} → TWD ${Number(record.converted).toFixed(2)} (匯率 ${Number(record.rate).toFixed(4)})</small>
-    `;
-    elements.recordList.appendChild(item);
-  });
-};
+  function savePlan() {
+    const trip = window.currentTrip;
+    if (!trip) {
+      showMessage('尚未建立行程資料，請先查詢目的地。', 'error');
+      return;
+    }
 
-window.addEventListener('DOMContentLoaded', init);
+    showMessage('正在儲存至 Google Sheets，請稍後...', 'info');
+    google.script.run
+      .withSuccessHandler(function (result) {
+        if (result && result.success) {
+          showMessage(result.message, 'success');
+          const link = document.getElementById('sheetLink');
+          link.href = result.sheetUrl;
+          link.textContent = '點此開啟旅遊行程 Google Sheet';
+          link.classList.remove('hidden');
+        } else {
+          showMessage('儲存失敗，請稍後再試。', 'error');
+        }
+      })
+      .withFailureHandler(function (error) {
+        showMessage(error.message || '儲存失敗，請稍後再試。', 'error');
+      })
+      .saveTrip(trip);
+  }
+
+  function showMessage(text, type) {
+    const message = document.getElementById('message');
+    message.textContent = text;
+    message.className = 'message ' + type;
+  }
+</script>
