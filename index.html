@@ -9,45 +9,45 @@
   <body>
     <div class="app-shell">
       <header>
-        <h1>Smart Travel Planner & Weather Packer</h1>
-        <p>輸入目的地城市與預計出發日期，立即產生當季天氣預測與打包清單。</p>
+        <h1>旅行規劃與打包小幫手</h1>
+        <p>輸入目的地城市與出發日期，系統會自動抓取當季平均氣溫與天氣，並推薦打包清單。</p>
       </header>
 
       <main class="dashboard-grid">
         <section class="card input-card">
           <div class="card-header">
-            <h2>Trip Planner</h2>
-            <span>Destination & Departure</span>
+            <h2>行程規劃</h2>
+            <span>目的地與出發日</span>
           </div>
           <form id="travelForm" onsubmit="return handleSubmit(event)">
-            <label for="destination">Destination City</label>
-            <input id="destination" name="destination" type="text" placeholder="例如：Kyoto" required />
+            <label for="destination">目的地城市</label>
+            <input id="destination" name="destination" type="text" placeholder="例如：京都" required />
 
-            <label for="departureDate">Departure Date</label>
+            <label for="departureDate">預計出發日</label>
             <input id="departureDate" name="departureDate" type="date" required />
 
-            <button type="submit">Generate Plan</button>
+            <button type="submit">立即產生行程</button>
           </form>
         </section>
 
         <section class="card summary-card hidden" id="resultPanel">
           <div class="card-header">
-            <h2>Travel Dashboard</h2>
-            <span>Weather & Packing</span>
+            <h2>旅行儀表板</h2>
+            <span>天氣與打包建議</span>
           </div>
 
           <div class="summary-box">
-            <div class="summary-title">Your Trip to <span id="resultDestination"></span></div>
+            <div class="summary-title">你的旅程：<span id="resultDestination"></span></div>
             <div class="summary-meta">
-              <div><strong>Date</strong><p id="resultDate"></p></div>
-              <div><strong>Season</strong><p id="resultSeason"></p></div>
-              <div><strong>Weather</strong><p id="resultWeather"></p></div>
-              <div><strong>Avg Temp</strong><p id="resultTemperature"></p></div>
+              <div><strong>出發日</strong><p id="resultDate"></p></div>
+              <div><strong>季節</strong><p id="resultSeason"></p></div>
+              <div><strong>天氣型態</strong><p id="resultWeather"></p></div>
+              <div><strong>平均氣溫</strong><p id="resultTemperature"></p></div>
             </div>
           </div>
 
           <div class="forecast-box">
-            <div class="forecast-title">Seasonal Weather Snapshot</div>
+            <div class="forecast-title">當季天氣概況</div>
             <div class="forecast-chips">
               <span id="forecastTemp"></span>
               <span id="forecastType"></span>
@@ -56,22 +56,22 @@
 
           <div class="packing-grid">
             <div>
-              <h3>Clothing</h3>
+              <h3>衣物建議</h3>
               <ul id="packingClothing"></ul>
             </div>
             <div>
-              <h3>Essentials</h3>
+              <h3>貼身必備</h3>
               <ul id="packingEssentials"></ul>
             </div>
             <div>
-              <h3>Electronics</h3>
+              <h3>電子用品</h3>
               <ul id="packingElectronics"></ul>
             </div>
           </div>
 
           <div class="actions">
-            <button id="saveButton" onclick="savePlan()" type="button">SAVE TO TRAVEL TRIPS</button>
-            <a id="sheetLink" class="hidden" target="_blank" rel="noopener">Open Google Sheet</a>
+            <button id="saveButton" onclick="savePlan()" type="button">儲存至 Google Sheets</button>
+            <a id="sheetLink" class="hidden" target="_blank" rel="noopener">開啟已儲存活頁簿</a>
           </div>
         </section>
       </main>

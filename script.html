@@ -22,21 +22,22 @@
       return;
     }
 
-    document.getElementById('resultDestination').textContent = `${data.destination}${data.country ? ', ' + data.country : ''}`;
+    document.getElementById('resultDestination').textContent = `${data.destination}${data.country ? '，' + data.country : ''}`;
     document.getElementById('resultDate').textContent = data.departureDate;
     document.getElementById('resultSeason').textContent = data.season;
     document.getElementById('resultTemperature').textContent = `${data.averageTemperatureC}°C`;
     document.getElementById('resultWeather').textContent = data.weatherType;
-    document.getElementById('forecastTemp').textContent = `Avg Temp: ${data.averageTemperatureC}°C`;
-    document.getElementById('forecastType').textContent = data.weatherType;
+    document.getElementById('forecastTemp').textContent = `平均氣溫：${data.averageTemperatureC}°C`;
+    document.getElementById('forecastType').textContent = `天氣型態：${data.weatherType}`;
 
     renderCategoryList('packingClothing', data.packingList.clothing || []);
     renderCategoryList('packingEssentials', data.packingList.essentials || []);
     renderCategoryList('packingElectronics', data.packingList.electronics || []);
 
     document.getElementById('resultPanel').classList.remove('hidden');
-    showMessage('已為您生成旅行計畫與打包建議，可儲存至 Google Sheets。', 'success');
+    showMessage('已為您生成旅行計畫與打包清單，可儲存至 Google Sheets。', 'success');
     window.currentTrip = data;
+  }
 
   function renderCategoryList(elementId, items) {
     const container = document.getElementById(elementId);
@@ -46,7 +47,6 @@
       li.textContent = item;
       container.appendChild(li);
     });
-  }
   }
 
   function savePlan() {
