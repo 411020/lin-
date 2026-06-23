@@ -9,40 +9,74 @@
   <body>
     <div class="app-shell">
       <header>
-        <h1>旅行打包計畫</h1>
-        <p>輸入目的地城市與預計出發日期，系統會自動抓取當季平均氣溫與建議天氣，並生成打包清單。</p>
+        <h1>Smart Travel Planner & Weather Packer</h1>
+        <p>輸入目的地城市與預計出發日期，立即產生當季天氣預測與打包清單。</p>
       </header>
 
-      <main>
-        <form id="travelForm" onsubmit="return handleSubmit(event)">
-          <label for="destination">目的地城市</label>
-          <input id="destination" name="destination" type="text" placeholder="例如：Tokyo" required />
+      <main class="dashboard-grid">
+        <section class="card input-card">
+          <div class="card-header">
+            <h2>Trip Planner</h2>
+            <span>Destination & Departure</span>
+          </div>
+          <form id="travelForm" onsubmit="return handleSubmit(event)">
+            <label for="destination">Destination City</label>
+            <input id="destination" name="destination" type="text" placeholder="例如：Kyoto" required />
 
-          <label for="departureDate">預計出發日期</label>
-          <input id="departureDate" name="departureDate" type="date" required />
+            <label for="departureDate">Departure Date</label>
+            <input id="departureDate" name="departureDate" type="date" required />
 
-          <button type="submit">查詢天氣與打包建議</button>
-        </form>
+            <button type="submit">Generate Plan</button>
+          </form>
+        </section>
 
-        <section id="resultPanel" class="hidden">
-          <h2>旅行建議</h2>
-          <div class="result-grid">
-            <div><strong>目的地</strong><span id="resultDestination"></span></div>
-            <div><strong>出發日期</strong><span id="resultDate"></span></div>
-            <div><strong>季節</strong><span id="resultSeason"></span></div>
-            <div><strong>平均氣溫</strong><span id="resultTemperature"></span></div>
-            <div><strong>天氣型態</strong><span id="resultWeather"></span></div>
-            <div class="packing-block"><strong>建議打包清單</strong><ul id="resultPacking"></ul></div>
+        <section class="card summary-card hidden" id="resultPanel">
+          <div class="card-header">
+            <h2>Travel Dashboard</h2>
+            <span>Weather & Packing</span>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-title">Your Trip to <span id="resultDestination"></span></div>
+            <div class="summary-meta">
+              <div><strong>Date</strong><p id="resultDate"></p></div>
+              <div><strong>Season</strong><p id="resultSeason"></p></div>
+              <div><strong>Weather</strong><p id="resultWeather"></p></div>
+              <div><strong>Avg Temp</strong><p id="resultTemperature"></p></div>
+            </div>
+          </div>
+
+          <div class="forecast-box">
+            <div class="forecast-title">Seasonal Weather Snapshot</div>
+            <div class="forecast-chips">
+              <span id="forecastTemp"></span>
+              <span id="forecastType"></span>
+            </div>
+          </div>
+
+          <div class="packing-grid">
+            <div>
+              <h3>Clothing</h3>
+              <ul id="packingClothing"></ul>
+            </div>
+            <div>
+              <h3>Essentials</h3>
+              <ul id="packingEssentials"></ul>
+            </div>
+            <div>
+              <h3>Electronics</h3>
+              <ul id="packingElectronics"></ul>
+            </div>
           </div>
 
           <div class="actions">
-            <button id="saveButton" onclick="savePlan()" type="button">存入 Google Sheets</button>
-            <a id="sheetLink" class="hidden" target="_blank" rel="noopener">前往已儲存的 Google Sheets</a>
+            <button id="saveButton" onclick="savePlan()" type="button">SAVE TO TRAVEL TRIPS</button>
+            <a id="sheetLink" class="hidden" target="_blank" rel="noopener">Open Google Sheet</a>
           </div>
         </section>
-
-        <div id="message" class="message"></div>
       </main>
+
+      <div id="message" class="message"></div>
     </div>
 
     <?!= include('script'); ?>

@@ -22,23 +22,31 @@
       return;
     }
 
-    document.getElementById('resultDestination').textContent = `${data.destination}${data.country ? '，' + data.country : ''}`;
+    document.getElementById('resultDestination').textContent = `${data.destination}${data.country ? ', ' + data.country : ''}`;
     document.getElementById('resultDate').textContent = data.departureDate;
     document.getElementById('resultSeason').textContent = data.season;
-    document.getElementById('resultTemperature').textContent = `${data.averageTemperatureC} °C`;
+    document.getElementById('resultTemperature').textContent = `${data.averageTemperatureC}°C`;
     document.getElementById('resultWeather').textContent = data.weatherType;
+    document.getElementById('forecastTemp').textContent = `Avg Temp: ${data.averageTemperatureC}°C`;
+    document.getElementById('forecastType').textContent = data.weatherType;
 
-    const packingList = document.getElementById('resultPacking');
-    packingList.innerHTML = '';
-    data.packingList.forEach(function (item) {
-      const li = document.createElement('li');
-      li.textContent = item;
-      packingList.appendChild(li);
-    });
+    renderCategoryList('packingClothing', data.packingList.clothing || []);
+    renderCategoryList('packingEssentials', data.packingList.essentials || []);
+    renderCategoryList('packingElectronics', data.packingList.electronics || []);
 
     document.getElementById('resultPanel').classList.remove('hidden');
-    showMessage('已為您生成旅遊打包建議，您可以儲存至 Google Sheets。', 'success');
+    showMessage('已為您生成旅行計畫與打包建議，可儲存至 Google Sheets。', 'success');
     window.currentTrip = data;
+
+  function renderCategoryList(elementId, items) {
+    const container = document.getElementById(elementId);
+    container.innerHTML = '';
+    items.forEach(function (item) {
+      const li = document.createElement('li');
+      li.textContent = item;
+      container.appendChild(li);
+    });
+  }
   }
 
   function savePlan() {

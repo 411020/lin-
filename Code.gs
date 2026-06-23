@@ -27,6 +27,7 @@ function getDestinationWeather(destinationCity, departureDate) {
   const climate = fetchSeasonClimate(coords.latitude, coords.longitude, month);
   const weatherType = describeWeatherType(climate);
   const packingList = buildPackingList(climate, weatherType);
+  const packingItems = flattenPackingList(packingList);
 
   return {
     destination: coords.name,
@@ -38,6 +39,7 @@ function getDestinationWeather(destinationCity, departureDate) {
     precipitationMm: climate.precipitationMm,
     weatherType,
     packingList,
+    packingItems,
   };
 }
 
@@ -55,7 +57,7 @@ function saveTrip(trip) {
     trip.season || '',
     trip.averageTemperatureC || '',
     trip.weatherType || '',
-    trip.packingList ? trip.packingList.join('，') : '',
+    trip.packingItems ? trip.packingItems.join('，') : '',
   ]);
 
   return {
@@ -117,27 +119,46 @@ function describeWeatherType(climate) {
 }
 
 function buildPackingList(climate, weatherType) {
-  const items = [];
+  const clothing = [];
+  const essentials = [];
+  const electronics = ['充電器', '手機'];
+
   if (weatherType.includes('雨') || climate.precipitationMm >= 120) {
-    items.push('雨具');
+    essentials.push('雨具', '防水包');
   }
   if (weatherType.includes('寒冷') || climate.averageTemperatureC < 15) {
-    items.push('發熱衣', '厚外套');
+    clothing.push('發熱衣', '厚外套', '圍巾');
   } else if (climate.averageTemperatureC < 20) {
-    items.push('薄外套', '長袖衣物');
+    clothing.push('薄外套', '長袖衣物');
   } else if (climate.averageTemperatureC >= 25) {
-    items.push('短袖', '防曬用品');
+    clothing.push('短袖', '防曬衣', '遮陽帽');
   }
   if (weatherType.includes('雪')) {
-    items.push('保暖帽子', '手套');
+    clothing.push('保暖帽子', '手套');
+    essentials.push('護唇膏');
   }
   if (weatherType.includes('炎熱')) {
-    items.push('太陽眼鏡', '防曬乳');
+    essentials.push('太陽眼鏡', '防曬乳');
   }
-  if (!items.length) {
-    items.push('基本衣物', '充電器', '手機');
+  if (!clothing.length) {
+    clothing.push('基本衣物');
   }
-  return items;
+  if (!essentials.length) {
+    essentials.push('旅行文件', '零錢包');
+  }
+
+  return {
+    clothing: Array.from(new Set(clothing)),
+    essentials: Array.from(new Set(essentials)),
+    electronics: Array.from(new Set(electronics)),
+  };
+}
+
+function flattenPackingList(packingList) {
+  if (!packingList) return [];
+  return Object.values(packingList).reduce(function (acc, items) {
+    return acc.concat(items || []);
+  }, []);
 }
 
 function getSeasonName(month) {
